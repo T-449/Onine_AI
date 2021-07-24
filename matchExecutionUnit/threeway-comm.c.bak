@@ -25,9 +25,9 @@ volatile int is_alarm_active;
 
 
 void Exit(int exitCode) {
-	if(pid[0]) killpg(pid[0], SIGKILL);
-	if(pid[1]) killpg(pid[1], SIGKILL);
-	if(pid[2]) killpg(pid[2], SIGKILL);
+	if(pid[0]) kill(pid[0], SIGKILL);
+	if(pid[1]) kill(pid[1], SIGKILL);
+	if(pid[2]) kill(pid[2], SIGKILL);
 	exit(exitCode);
 }
 void alarm_handler(int signum) {
@@ -101,11 +101,7 @@ void spawn_process(int index) {
 		close(fd[index][1]);
 		dup2(fd[index][0],0);
 		dup2(fd[index][0],1);
-		int ret = setpgid(0,0);
-		if(ret==-1) {
-			Exit(-1);
-		}
-		ret = execlp("./runner.sh", "runner.sh", source_lang[index], source_path[index], names[index], NULL);
+		int ret = execlp("./runner.sh", "runner.sh", source_lang[index], source_path[index], names[index], NULL);
 		printf("execlp error at %s\n", names[index]);
 		Exit(-1);
 	}
@@ -150,7 +146,6 @@ int main(int argc, char* argv []) {
     source_path[2] = argv[6];
 
 	signal(SIGALRM,alarm_handler);
-	signal(SIGPIPE,SIG_IGN);
 
 	printf("%s %s %s\n",source_path[0],source_path[1],source_path[2]);
 	socketpair(AF_UNIX,SOCK_STREAM,0,fd[0]);
@@ -158,10 +153,10 @@ int main(int argc, char* argv []) {
 	socketpair(AF_UNIX,SOCK_STREAM,0,fd[2]);
 	
 
-	spawn_process(2);
 	spawn_process(0);
 	spawn_process(1);
-
+	spawn_process(2);
+	
 	//init
 	int r = read_until_newline(fd[2][1],buff,1024,10);
 	dprintf(fd[0][1],buff,r);

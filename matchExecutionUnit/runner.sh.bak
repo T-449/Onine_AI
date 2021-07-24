@@ -13,11 +13,7 @@ if [ $1 = "g++11" ]; then
 
 elif [ $1 = "g++14" ]; then
     g++ -std=c++14 -O2 -x c++ "$2" -o "$3.out"
-    if [ $? -ne 0 ]; 
-    then
-	    echo "error" > /dev/stderr
-	    exit 1; 
-    fi
+    if [ $? -ne 0 ]; then exit 1; fi
 
     "./$3.out"
     if [ $? -ne 0 ]; then exit 2; fi

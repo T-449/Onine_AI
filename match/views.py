@@ -58,7 +58,7 @@ def get_match_or_validate_judge_requests(request, match_uuid):
 def show_match_history(request, match_uuid):
     match = get_match_or_validate_requests(request, match_uuid)
     if match.match_status != Match.MatchStatus.ENDED:
-        raise Http404
+        return HttpResponseRedirect(reverse("dump_history", args=(match_uuid,)))
     match_history_raw = fileutils.get_file_content_as_string(match.history_filepath)
     match_history = match_history_raw.encode('unicode_escape').decode('utf-8')
     match_result = match.match_results
@@ -84,8 +84,8 @@ def judge_match(request, match_uuid):
     print("Hello ", match, os.getpid(), os.getpgrp())
     GlobalJudgeQueue.judge_queue.submit(match)
 
-    #p = Process(target=execute_match, args=(match,))
-    #p.start()
+    # p = Process(target=execute_match, args=(match,))
+    # p.start()
 
     return redirectToCurrent(request)
 
